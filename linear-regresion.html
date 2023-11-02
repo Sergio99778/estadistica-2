@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+  <body>
+    <div id="plot"></div>
+    <h1 id="result"></h1>
+    <div id="error-truncamiento"></div>
+    <h1 id="predictions"></h1>
+
+    <script>
+        // Initial data for plotting
+      const layout = {
+        title: "Diagrama de dispersión",
+        xaxis: { title: "x" },
+        yaxis: { title: "f(x)" },
+      };
+      const anual_income = [20, 25, 28, 18, 16, 17, 31, 13, 38, 41];
+      const assurance_price = [10, 12, 15, 10, 15, 20, 30, 5, 40, 50];
+
+      const plotData = {
+        x: anual_income,
+        y: assurance_price,
+        mode: "markers",
+        type: "scatter",
+        name: "Datos",
+      };
+    //   Calculate the linear aproximation
+      const sum_x = anual_income.reduce((a, b) => a + b, 0);
+      const sum_y = assurance_price.reduce((a, b) => a + b, 0);
+      const sum_xy = anual_income
+      .map((x, i) => x * assurance_price[i])
+        .reduce((a, b) => a + b, 0);
+      const sum_x2 = anual_income.map((x) => x * x).reduce((a, b) => a + b, 0);
+      const sum_y2 = assurance_price
+      .map((x) => x * x)
+      .reduce((a, b) => a + b, 0);
+      const n = anual_income.length;
+      const m = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x * sum_x);
+      const b = (sum_y - m * sum_x) / n;
+      const linearAproximation = (x) => m * x + b;
+      const plotLinearData = {
+          x: anual_income,
+          y: anual_income.map((x) => linearAproximation(x)),
+          mode: "lines",
+          type: "scatter",
+          name: "Aproximación lineal",
+        };
+        
+        Plotly.newPlot("plot", [plotData, plotLinearData], layout);
+        // Write the result equation
+          document.getElementById(
+            "result"
+          ).innerHTML = `f(x) = ${m.toFixed(2)}x + ${b.toFixed(2)}`;
+        
+          const values_to_predict = [30, 35, 40, 45, 50];
+            const predictions = values_to_predict.map((x) =>
+                linearAproximation(x)
+            );
+            document.getElementById(
+                "predictions"
+            ).innerHTML = `Predicciones: X = [${values_to_predict.join(
+                ", "
+            )}] => Y = [${predictions.join(", ")}]\n`;
+    </script>
+  </body>
+</html>
